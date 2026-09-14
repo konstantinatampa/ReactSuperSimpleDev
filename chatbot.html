@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chatbot</title>
+  </head>
+  <body>
+    <div class="js-container"></div>
+     <script src="https://unpkg.com/supersimpledev/dayjs.js"></script>
+    <script>  
+      const socks= 10;
+      const t_shirts=8;
+      const productCost = socks + t_shirts;
+      console.log(productCost)
+      console.log(dayjs().format('MMMM D'))</script>
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script> 
+    <script src="https://unpkg.com/supersimpledev/chatbot.js"></script>
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+    <script type="text/babel">
+      function ChatInput({chatMessages,setChatMessages}){
+        const [inputText, setInputText] =React.useState('');
+        function saveInputText(event){
+            setInputText(event.target.value)
+        }
+        function sendMessage(){
+          const newChatMessages=[   
+                ...chatMessages,
+                //Το νέο μήνυμα.
+                {
+                  message:inputText,
+                  sender:'user',
+                  id: crypto.randomUUID()
+                  
+                }
+              ]
+          
+              setChatMessages(newChatMessages);
+              const response = Chatbot.getResponse(inputText);
+              setChatMessages([   
+                ...newChatMessages,
+                //Το νέο μήνυμα.
+                {
+                  message:response,
+                  sender:'robot',
+                  id: crypto.randomUUID()
+                }
+              ]);
+              setInputText('');
+       
+        }
+        return (
+          <>
+            <input 
+              placeholder="Send a message to chatbot" 
+              size ="30" 
+              onChange={saveInputText}
+              value={inputText}
+            /> 
+            <button
+            onClick={sendMessage}>Send</button>
+          </>
+        );
+      }
+
+      function ChatMessage({message,sender}){
+       // const message = props.message;
+       // const sender = props.sender;
+       // const {message , sender} = props;
+       /* if(sender ==='robot'){
+            return(
+               <div>
+                 <img src ="robot.png" width="50" />
+                 {message}              
+               </div>
+            );
+        }*/
+        return (
+          <div>
+            {sender === 'robot' && (
+            <img src ="robot.png" width="50" /> 
+            )}
+            {message}
+            {sender === 'user' && (
+              <img src ="user.png" width="50" /> 
+            )}
+          </div>
+        );
+      }
+      function ChatMessages({chatMessages}){
+       
+        //Η Συνάρτηση Προσθήκης Μηνύματος
+        //Αυτή η συνάρτηση θα τρέχει μόνο όταν ο χρήστης κάνει κλικ στο κουμπί.
+          
+            //Κανόνας React: Ποτέ δεν αλλάζουμε τα δεδομένα απευθείας (π.χ. ποτέ chatMessages.push(...)). Πάντα καλούμε τη setChatMessages(...)
+            //για να καταλάβει η React ότι κάτι άλλαξε και να ξαναζωγραφίσει την οθόνη.
+              
+           return(
+            <>
+          
+              {chatMessages.map((chatMessage) => {
+                return (
+                  // Για κάθε μήνυμα φτιάχνει ένα αντίγραφο του component ChatMessage και του περνάει:
+                  <ChatMessage 
+                    message = {chatMessage.message}
+                    sender = {chatMessage.sender}
+                    key={chatMessage.id}
+             />
+           );
+          })}
+        </>
+        )
+          
+      }
+    //(Ο κεντρικός διαχειριστής / Γονέας): Κρατάει στο state τη συνολική λίστα με τα μηνύματα (chatMessages) και την μοιράζει στα δύο παιδιά του.
+      function App(){
+         const [chatMessages, setChatMessages] = React.useState([{
+            message: 'hello chatbot',
+            sender: 'user',
+            id:'id1'
+          
+            },{
+            message:'Hello! How can I help you?',
+            sender:'robot',
+            id:'id2'
+            },
+           { message:'can you get me todays date?',
+             sender:'user',
+             id:'id3'
+           },
+           { message:'Today is September 9',
+             sender:'robot',
+             id:'id4'
+           }]);
+       // const [chatMessages, setChatMessages]=array;
+       //Είναι τα δεδομένα σου. Εδώ μέσα βρίσκεται ο πίνακας με τα 4 μηνύματα.
+       // const chatMessages = array[0];
+      //: Είναι η ειδική συνάρτηση που σου δίνει η React για να αλλάζεις τα μηνύματα.
+       // const setChatMessages= array[1];
+
+        return (
+          <>
+          
+          <ChatInput
+          chatMessages= {chatMessages} 
+          setChatMessages={setChatMessages}/>
+          <ChatMessages 
+          chatMessages={chatMessages}/>
+        </>
+        );
+      }
+      
+      const container = document.querySelector('.js-container');
+      ReactDOM.createRoot(container).render(<App />);
+    </script>
+  </body>
+</html>
